@@ -17,8 +17,9 @@ namespace Magyk
 
 		void Update(RE::Actor* a_actor);
 
-		static inline bool		increasing = false;
+		static inline bool      floating = false;
 		static inline bool		hovering = false;
+		static inline bool		increasing = false;
 
 		static inline bool		r_cast_out = false;
 		static inline bool		l_cast_out = false;
@@ -26,6 +27,10 @@ namespace Magyk
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
+		static uint32_t RadianRange(float a_radian);
+		static float RadiansToDegrees(float a_radian);
+		static bool CheckDirection(bool use_axis=false);
+
 	protected:
 		struct Hooks
 		{
