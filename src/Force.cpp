@@ -55,43 +55,57 @@ bool Magyk::Force::CheckDirection(bool use_axis) {
 	return false;
 }
 
+void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, float height) {
+	RE::hkVector4 hkp;
+	a_controller->GetPositionImpl(hkp, false);
+	auto posn = hkp.quad.m128_f32;
+	posn[2] += height;
+	a_controller->SetPositionImpl(hkp, false, false);
+}
+
+void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
+	RE::hkVector4 hkp;
+	a_controller->GetPositionImpl(hkp, false);
+	auto posn = hkp.quad.m128_f32;
+	a_controller->fallStartHeight = posn[2];
+	a_controller->fallTime = 0.0f;
+}
+
 void Magyk::Force::Update(RE::Actor* a_actor) {
 	if (a_actor->Is3DLoaded()) {
 		if (floating) {
 			a_actor->GetGraphVariableBool(r_cast, r_cast_out);
 			a_actor->GetGraphVariableBool(l_cast, l_cast_out);
 			auto controller = a_actor->GetCharController();
-			RE::hkVector4 hkv;
-			controller->GetLinearVelocityImpl(hkv);
-			auto velo = hkv.quad.m128_f32;
 			if (hovering) {
-				if (r_cast_out || l_cast_out) {
-					if (increasing) {
-						if (velo[2] <= 12.0f) {
-							velo[2] += 0.25f;
-							controller->SetLinearVelocityImpl(hkv);
-						} else {
-							increasing = false;
-						}
+				RE::hkVector4 hkv;
+				controller->GetLinearVelocityImpl(hkv);
+				auto velo = hkv.quad.m128_f32;
+				if (increasing) {
+					if (r_cast_out || l_cast_out) {
+						lift += 0.25f;
 					} else {
-						velo[2] -= 0.1f;
-						controller->SetLinearVelocityImpl(hkv);
+						increasing = false;
 					}
 				} else {
-					hovering = false;
-					increasing = false;
-					if (velo[2] < -2.0f) {
+					lift += 0.5f;
+					if (lift > max_height) {
 						floating = false;
 					}
 				}
+				velo[2] = (max_height - lift);
+				controller->SetLinearVelocityImpl(hkv);
+				DampenFall(controller);
 			} else {
-				if (velo[2] < -2.0f) {
-					floating = false;
+				if (r_cast_out || l_cast_out) {
+					if (CheckDirection(true)) {
+						IncreaseElevation(controller, 1.0f);
+						hovering = true;
+					}
 				} else {
-					velo[2] -= 0.1f;
-					controller->SetLinearVelocityImpl(hkv);
+					floating = false;
 				}
-			} 
+			}
 		}
 	}
 }

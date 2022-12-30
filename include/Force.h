@@ -18,8 +18,11 @@ namespace Magyk
 		void Update(RE::Actor* a_actor);
 
 		static inline bool      floating = false;
-		static inline bool		hovering = false;
+		static inline bool      hovering = false;
 		static inline bool		increasing = false;
+
+		static inline float		max_height = 24.0f;
+		static inline float		lift = 0.0f;
 
 		static inline bool		r_cast_out = false;
 		static inline bool		l_cast_out = false;
@@ -30,6 +33,9 @@ namespace Magyk
 		static uint32_t RadianRange(float a_radian);
 		static float RadiansToDegrees(float a_radian);
 		static bool CheckDirection(bool use_axis=false);
+
+		static void IncreaseElevation(RE::bhkCharacterController* a_controller, float height);
+		static void DampenFall(RE::bhkCharacterController* a_controller);
 
 	protected:
 		struct Hooks
