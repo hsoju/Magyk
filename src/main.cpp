@@ -41,9 +41,8 @@ namespace {
         auto& trampoline = GetTrampoline();
         trampoline.create(14);
         log::trace("Trampoline initialized.");
+		Magyk::Force::GetSingleton()->SetMaxHeight();
 		Hooks::Install();
-        // Loki::DynamicAnimationCasting::LoadTomls();
-        // Loki::DynamicAnimationCasting::InstallGraphEventSink();
     }
 
     void InitializeMessaging() {
@@ -109,9 +108,6 @@ extern "C" [[maybe_unused]] DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::L
     SKSE::Init(skse);
 
     InitializeMessaging();
-	// const auto papyrus = SKSE::GetPapyrusInterface();
-	// papyrus->Register(InitializePapyrus);
-    // InitializeSerialization();
 
     log::info("{} has finished loading.", plugin->GetName());
     return true;
