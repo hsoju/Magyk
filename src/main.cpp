@@ -42,7 +42,6 @@ namespace {
         trampoline.create(14);
         log::trace("Trampoline initialized.");
 		Hooks::Install();
-		Magyk::Caster::AddSpellCastSink();
         // Loki::DynamicAnimationCasting::LoadTomls();
         // Loki::DynamicAnimationCasting::InstallGraphEventSink();
     }
