@@ -1,5 +1,16 @@
 #include <numbers>
+
+#include <SimpleIni.h>
+
 #include "Force.h"
+
+void Magyk::Force::SetMaxHeight() {
+	CSimpleIniA ini;
+	ini.SetUnicode();
+	ini.LoadFile(L"Data\\SKSE\\Plugins\\Magyk.ini");
+	max_height = ini.GetDoubleValue("Global", "fMaxHeight", 18.0f);
+}
+
 
 uint32_t Magyk::Force::RadianRange(float a_degree) {
 	if (a_degree < 90.0f) {
@@ -89,7 +100,7 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 		}
 		if (has_jumped) {
 			if (facing_down) {
-				IncreaseElevation(a_controller, 1.0f);
+				IncreaseElevation(a_controller, 1.5f);
 				is_hovering = true;
 			} else {
 				jump_cycle += 1;

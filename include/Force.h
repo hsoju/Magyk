@@ -28,7 +28,7 @@ namespace Magyk
 		static inline uint32_t facing_cycle = 0;
 		static inline uint32_t facing_window = 50;
 
-		static inline float max_height = 24.0f;
+		static inline float max_height = 18.0f;
 		static inline float	drag = 0.0f;
 
 		static inline bool r_cast_out = false;
@@ -37,6 +37,8 @@ namespace Magyk
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
+		static void SetMaxHeight();
+
 		static uint32_t RadianRange(float a_radian);
 		static float RadiansToDegrees(float a_radian);
 		static bool CheckDirection(bool use_axis=false);
