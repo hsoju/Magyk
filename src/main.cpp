@@ -5,7 +5,6 @@
 using namespace RE::BSScript;
 using namespace SKSE;
 using namespace SKSE::log;
-using namespace SKSE::stl;
 
 namespace {
     void InitializeLogging(const SKSE::PluginDeclaration* plugin) {
@@ -14,7 +13,7 @@ namespace {
 #else
         auto path = logger::log_directory();
         if (!path) {
-            report_and_fail("Unable to lookup SKSE logs directory.");
+            SKSE::stl::report_and_fail("Unable to lookup SKSE logs directory.");
         }
 
         *path /= fmt::format(FMT_STRING("{}.log"), plugin->GetName());

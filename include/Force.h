@@ -23,12 +23,12 @@ namespace Magyk
 		bool has_jumped = false;
 
 		uint32_t jump_cycle = 0;
-		uint32_t jump_window = 25;
+		uint32_t jump_window = 10;
 
 		uint32_t facing_cycle = 0;
 		uint32_t facing_window = 50;
 
-		float max_height = 18.0f;
+		float max_velocity = 18.0f;
 		float drag = 0.0f;
 
 		bool r_cast_out = false;
@@ -38,6 +38,7 @@ namespace Magyk
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
 		void SetMaxHeight();
+		void SetDefaults();
 		void Update(RE::Actor* a_actor);
 
 	protected:

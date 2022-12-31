@@ -8,9 +8,19 @@ void Magyk::Force::SetMaxHeight() {
 	CSimpleIniA ini;
 	ini.SetUnicode();
 	ini.LoadFile(L"Data\\SKSE\\Plugins\\Magyk.ini");
-	max_height = ini.GetDoubleValue("Global", "fMaxHeight", 18.0f);
+	max_velocity = ini.GetDoubleValue("Global", "fMaxVelocity", 18.0f);
 }
 
+
+void Magyk::Force::SetDefaults() {
+	drag = 0.0f;
+	facing_cycle = 0;
+	jump_cycle = 0;
+	facing_down = false;
+	has_jumped = false;
+	is_hovering = false;
+	increasing = false;
+}
 
 uint32_t Magyk::Force::RadianRange(float a_degree) {
 	if (a_degree < 90.0f) {
@@ -100,7 +110,9 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 		}
 		if (has_jumped) {
 			if (facing_down) {
+				has_jumped = false;
 				IncreaseElevation(a_controller, 1.5f);
+				increasing = true;
 				is_hovering = true;
 			} else {
 				jump_cycle += 1;
@@ -128,28 +140,31 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 				if (increasing) {
 					if (r_cast_out || l_cast_out) {
 						if (!(r_cast_out && l_cast_out)) {
-							if (drag > max_height) {
+							if (drag > max_velocity) {
 								drag += 0.075f;
 							} else {
 								drag += 0.25f;
 							}
 						} else {
-							if (drag > max_height) {
+							if (drag > max_velocity) {
 								drag += 0.05f;
 							} else {
 								drag += 0.125f;
 							}
+						}
+						if (!a_actor->IsInMidair()) {
+							a_actor->InterruptCast(false);
 						}
 					} else {
 						increasing = false;
 					}
 				} else {
 					drag += 0.5f;
-					if (drag > max_height) {
+					if (drag > max_velocity) {
 						can_hover = false;
 					}
 				}
-				velo[2] = (max_height - drag);
+				velo[2] = (max_velocity - drag);
 				controller->SetLinearVelocityImpl(hkv);
 				DampenFall(controller);
 			} else {
