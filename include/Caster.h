@@ -18,11 +18,6 @@ namespace Magyk
 				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->floating) {
 					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
 					if (IsValidSpell(spell)) {
-						//auto gmst = RE::GameSettingCollection::GetSingleton();
-						//auto fall_height = gmst->GetSetting("fJumpFallHeightMin");
-						//auto distance = fall_height->GetFloat();
-						//fall_height->data.f = 100000.0f;
-						//gmst->WriteSetting(fall_height);
 						auto force = Magyk::Force::GetSingleton();
 						force->lift = 0.0f;
 						force->increasing = true;
