@@ -15,14 +15,18 @@ namespace Magyk
 		auto ProcessEvent(const RE::TESSpellCastEvent* a_event, RE::BSTEventSource<RE::TESSpellCastEvent>* a_eventSource) -> RE::BSEventNotifyControl override {
 			if (a_event && a_event->object && a_event->object->IsPlayerRef()) {
 				auto player = a_event->object->As<RE::Actor>();
-				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->floating) {
+				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->can_hover) {
 					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
 					if (IsValidSpell(spell)) {
 						auto force = Magyk::Force::GetSingleton();
 						force->lift = 0.0f;
+						force->facing_cycle = 0;
+						force->jump_cycle = 0;
+						force->facing_down = false;
+						force->has_jumped = false;
 						force->increasing = true;
-						force->hovering = false;
-						force->floating = true;
+						force->is_hovering = false;
+						force->can_hover = true;
 					}
 				}
 			}

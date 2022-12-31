@@ -1,17 +1,17 @@
 #include <numbers>
 #include "Force.h"
 
-uint32_t Magyk::Force::RadianRange(float a_radian) {
-	if (a_radian < (std::numbers::pi / 2.0)) {
+uint32_t Magyk::Force::RadianRange(float a_degree) {
+	if (a_degree < 90.0f) {
 		return 0;
 	} else {
-		if (a_radian < std::numbers::pi) {
+		if (a_degree < 180.0f) {
 			return 1;
 		} else {
-			if (a_radian < (std::numbers::pi * 1.5)) {
+			if (a_degree < 270.0f) {
 				return 2;
 			} else {
-				if (a_radian < (std::numbers::pi * 2.0)) {
+				if (a_degree < 360.0f) {
 					return 3;
 				} else {
 					return 4;
@@ -35,9 +35,10 @@ bool Magyk::Force::CheckDirection(bool use_axis) {
 		rot.ToEulerAnglesXYZ(x, y, z);
 		x = RadiansToDegrees(x);
 		y = RadiansToDegrees(y);
+		z = RadiansToDegrees(z);
 		if (abs(x) > 40.0f || abs(y) > 30.0f) {
 			if (use_axis) {
-				uint32_t axis = RadianRange(cam->yaw);
+				uint32_t axis = RadianRange(RadiansToDegrees(cam->yaw));
 				if ((x + y) > 0.0f) {
 					if (axis == 0 || axis == 3) {
 						return true;
@@ -71,40 +72,74 @@ void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
 	a_controller->fallTime = 0.0f;
 }
 
+void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
+	if (r_cast_out || l_cast_out) {
+		if (!facing_down) {
+			if (CheckDirection(true)) {
+				facing_down = true;
+			}
+		} else {
+			facing_cycle += 1;
+			if (facing_cycle >= facing_window) {
+				facing_cycle = 0;
+				if (!CheckDirection(true)) {
+					facing_down = false;
+				}
+			}
+		}
+		if (has_jumped) {
+			if (facing_down) {
+				IncreaseElevation(a_controller, 1.0f);
+				is_hovering = true;
+			} else {
+				jump_cycle += 1;
+				if (jump_cycle >= jump_window) {
+					jump_cycle = 0;
+					has_jumped = false;
+				}
+			}
+		}
+	} else {
+		can_hover = false;
+	}
+}
+
 void Magyk::Force::Update(RE::Actor* a_actor) {
 	if (a_actor->Is3DLoaded()) {
-		if (floating) {
+		if (can_hover) {
 			a_actor->GetGraphVariableBool(r_cast, r_cast_out);
 			a_actor->GetGraphVariableBool(l_cast, l_cast_out);
 			auto controller = a_actor->GetCharController();
-			if (hovering) {
+			if (is_hovering) {
 				RE::hkVector4 hkv;
 				controller->GetLinearVelocityImpl(hkv);
 				auto velo = hkv.quad.m128_f32;
 				if (increasing) {
 					if (r_cast_out || l_cast_out) {
-						lift += 0.25f;
+						if (lift > max_height) {
+							lift += 0.05f;
+						} else {
+							if (!(r_cast_out && l_cast_out)) {
+								lift += 0.25f;
+							} else {
+								lift += 0.125f;
+							}
+						}
 					} else {
 						increasing = false;
 					}
 				} else {
 					lift += 0.5f;
 					if (lift > max_height) {
-						floating = false;
+						can_hover = false;
 					}
 				}
 				velo[2] = (max_height - lift);
 				controller->SetLinearVelocityImpl(hkv);
 				DampenFall(controller);
+				logger::info("{}", velo[2]);
 			} else {
-				if (r_cast_out || l_cast_out) {
-					if (CheckDirection(true)) {
-						IncreaseElevation(controller, 1.0f);
-						hovering = true;
-					}
-				} else {
-					floating = false;
-				}
+				CheckConditions(controller);
 			}
 		}
 	}

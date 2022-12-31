@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Force.h"
+
 namespace Magyk
 {
 	class Jumper : public RE::BSTEventSink<RE::InputEvent*> {
@@ -12,6 +14,10 @@ namespace Magyk
 		auto ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) -> RE::BSEventNotifyControl override {
 			if (!a_event) {
 				return RE::BSEventNotifyControl::kContinue;
+			}
+
+			if (!(Magyk::Force::GetSingleton()->can_hover && !Magyk::Force::GetSingleton()->is_hovering)) {
+				RE::BSEventNotifyControl::kContinue;
 			}
 
 			if (RE::UI::GetSingleton()->GameIsPaused() || !RE::ControlMap::GetSingleton()->IsMovementControlsEnabled()) {
@@ -45,10 +51,8 @@ namespace Magyk
 
 				const auto jump_key = GetJumpKey(button->device.get());
 
-				logger::info("{} != {}", current_key, jump_key);
-
 				if (current_key == jump_key) {
-					logger::info("Jump pressed");
+					Magyk::Force::GetSingleton()->has_jumped = true;
 					break;
 				}
 			}

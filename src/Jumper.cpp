@@ -1,5 +1,4 @@
 #include "Jumper.h"
-#include "Force.h"
 
 void Magyk::Jumper::AddJumpSink() {
 	auto deviceManager = RE::BSInputDeviceManager::GetSingleton();

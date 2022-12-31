@@ -15,17 +15,24 @@ namespace Magyk
 			return &forceInterface;
 		}
 
-		void Update(RE::Actor* a_actor);
+		static inline bool can_hover = false;
+		static inline bool is_hovering = false;
+		static inline bool increasing = false;
 
-		static inline bool      floating = false;
-		static inline bool      hovering = false;
-		static inline bool		increasing = false;
+		static inline bool facing_down = false;
+		static inline bool has_jumped = false;
 
-		static inline float		max_height = 24.0f;
-		static inline float		lift = 0.0f;
+		static inline uint32_t jump_cycle = 0;
+		static inline uint32_t jump_window = 25;
 
-		static inline bool		r_cast_out = false;
-		static inline bool		l_cast_out = false;
+		static inline uint32_t facing_cycle = 0;
+		static inline uint32_t facing_window = 50;
+
+		static inline float max_height = 24.0f;
+		static inline float	lift = 0.0f;
+
+		static inline bool r_cast_out = false;
+		static inline bool l_cast_out = false;
 
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
@@ -36,6 +43,9 @@ namespace Magyk
 
 		static void IncreaseElevation(RE::bhkCharacterController* a_controller, float height);
 		static void DampenFall(RE::bhkCharacterController* a_controller);
+
+		void CheckConditions(RE::bhkCharacterController* a_controller);
+		void Update(RE::Actor* a_actor);
 
 	protected:
 		struct Hooks
