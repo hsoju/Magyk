@@ -19,7 +19,7 @@ namespace Magyk
 					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
 					if (IsValidSpell(spell)) {
 						auto force = Magyk::Force::GetSingleton();
-						force->lift = 0.0f;
+						force->drag = 0.0f;
 						force->facing_cycle = 0;
 						force->jump_cycle = 0;
 						force->facing_down = false;

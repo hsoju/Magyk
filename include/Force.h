@@ -29,7 +29,7 @@ namespace Magyk
 		static inline uint32_t facing_window = 50;
 
 		static inline float max_height = 24.0f;
-		static inline float	lift = 0.0f;
+		static inline float	drag = 0.0f;
 
 		static inline bool r_cast_out = false;
 		static inline bool l_cast_out = false;
