@@ -116,28 +116,31 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 				auto velo = hkv.quad.m128_f32;
 				if (increasing) {
 					if (r_cast_out || l_cast_out) {
-						if (lift > max_height) {
-							lift += 0.05f;
-						} else {
-							if (!(r_cast_out && l_cast_out)) {
-								lift += 0.25f;
+						if (!(r_cast_out && l_cast_out)) {
+							if (drag > max_height) {
+								drag += 0.075f;
 							} else {
-								lift += 0.125f;
+								drag += 0.25f;
+							}
+						} else {
+							if (drag > max_height) {
+								drag += 0.05f;
+							} else {
+								drag += 0.125f;
 							}
 						}
 					} else {
 						increasing = false;
 					}
 				} else {
-					lift += 0.5f;
-					if (lift > max_height) {
+					drag += 0.5f;
+					if (drag > max_height) {
 						can_hover = false;
 					}
 				}
-				velo[2] = (max_height - lift);
+				velo[2] = (max_height - drag);
 				controller->SetLinearVelocityImpl(hkv);
 				DampenFall(controller);
-				logger::info("{}", velo[2]);
 			} else {
 				CheckConditions(controller);
 			}
