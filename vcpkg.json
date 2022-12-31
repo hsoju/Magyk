@@ -3,7 +3,7 @@
   "name": "magyk",
   "version-string": "1.0.0",
   "port-version": 0,
-  "description": "A SKSE plugin that causes forces to act on the player when casting magic.",
+  "description": "A SKSE plugin for spell gliding.",
   "homepage": "https://www.skyrimng.com",
   "license": "Apache-2.0",
   "features": {
