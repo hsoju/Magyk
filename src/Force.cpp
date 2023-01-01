@@ -4,13 +4,12 @@
 
 #include "Force.h"
 
-void Magyk::Force::SetMaxHeight() {
+void Magyk::Force::SetMaxVelocity() {
 	CSimpleIniA ini;
 	ini.SetUnicode();
 	ini.LoadFile(L"Data\\SKSE\\Plugins\\Magyk.ini");
 	max_velocity = ini.GetDoubleValue("Global", "fMaxVelocity", 18.0f);
 }
-
 
 void Magyk::Force::SetDefaults() {
 	drag = 0.0f;
@@ -96,14 +95,14 @@ void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
 void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 	if (r_cast_out || l_cast_out) {
 		if (!facing_down) {
-			if (CheckDirection(true)) {
+			if (CheckDirection()) {
 				facing_down = true;
 			}
 		} else {
 			facing_cycle += 1;
 			if (facing_cycle >= facing_window) {
 				facing_cycle = 0;
-				if (!CheckDirection(true)) {
+				if (!CheckDirection()) {
 					facing_down = false;
 				}
 			}
@@ -160,7 +159,7 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 					}
 				} else {
 					drag += 0.5f;
-					if (drag > max_velocity) {
+					if (!a_actor->IsInMidair()) {
 						can_hover = false;
 					}
 				}

@@ -37,7 +37,7 @@ namespace Magyk
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
-		void SetMaxHeight();
+		void SetMaxVelocity();
 		void SetDefaults();
 		void Update(RE::Actor* a_actor);
 
