@@ -17,7 +17,7 @@ namespace Magyk
 				auto player = a_event->object->As<RE::Actor>();
 				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->can_hover) {
 					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
-					if (IsValidSpell(spell)) {
+					if (spell && IsValidSpell(spell)) {
 						auto force = Magyk::Force::GetSingleton();
 						force->SetDefaults();
 						force->can_hover = true;
