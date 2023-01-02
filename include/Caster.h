@@ -18,16 +18,22 @@ namespace Magyk
 				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->can_hover) {
 					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
 					if (spell && IsValidSpell(spell)) {
-						auto force = Magyk::Force::GetSingleton();
-						force->SetDefaults();
-						force->can_hover = true;
+						if (!use_blacklist || (use_blacklist && whitelist.contains(spell))) {
+							auto force = Magyk::Force::GetSingleton();
+							force->SetDefaults();
+							force->can_hover = true;
+						}
 					}
 				}
 			}
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
+		bool use_blacklist = false;
+		std::set<RE::SpellItem*> whitelist;
 
+		void GetBlacklist();
+		void GetWhitelist();
 		void AddSpellCastSink();
 
 	protected:
