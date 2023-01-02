@@ -5,7 +5,7 @@
 
 void Hooks::Install() {
 	Magyk::Force::InstallHooks();
-	Magyk::Caster::AddSpellCastSink();
-	Magyk::Jumper::AddJumpSink();
+	Magyk::Caster::GetSingleton()->AddSpellCastSink();
+	Magyk::Jumper::GetSingleton()->AddJumpSink();
 	logger::info("Installed all hooks.");
 }

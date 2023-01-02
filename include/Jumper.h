@@ -59,7 +59,7 @@ namespace Magyk
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
-		static void AddJumpSink();
+		void AddJumpSink();
 
 	protected:
 		Jumper() = default;
@@ -79,8 +79,8 @@ namespace Magyk
 		};
 
 	private:
-		static uint32_t GetJumpKey(RE::INPUT_DEVICE a_device);
-		static uint32_t GetGamepadIndex(RE::BSWin32GamepadDevice::Key a_key);
+		uint32_t GetJumpKey(RE::INPUT_DEVICE a_device);
+		uint32_t GetGamepadIndex(RE::BSWin32GamepadDevice::Key a_key);
 
 	};
 }

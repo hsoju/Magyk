@@ -27,8 +27,8 @@ namespace Magyk
 			return RE::BSEventNotifyControl::kContinue;
 		}
 
-		static void AddSpellCastSink();
-		static bool IsValidSpell(RE::SpellItem* a_spell);
+
+		void AddSpellCastSink();
 
 	protected:
 		Caster() = default;
@@ -38,5 +38,8 @@ namespace Magyk
 
 		auto operator=(const Caster&) -> Caster& = delete;
 		auto operator=(Caster&&) -> Caster& = delete;
+
+	private:
+		bool IsValidSpell(RE::SpellItem* a_spell);
 	};
 }
