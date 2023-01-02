@@ -11,6 +11,14 @@ void Magyk::Force::SetMaxVelocity() {
 	max_velocity = ini.GetDoubleValue("Global", "fMaxVelocity", 18.0f);
 }
 
+void Magyk::Force::GetFallDamage() {
+	auto fall_setting = RE::GameSettingCollection::GetSingleton()->GetSetting("fJumpFallHeightMin");
+	if (fall_setting) {
+		fall_damage = fall_setting;
+		original_fall_damage = fall_setting->GetFloat();
+	}
+}
+
 void Magyk::Force::SetDefaults() {
 	drag = 0.0f;
 	facing_cycle = 0;
@@ -109,6 +117,7 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 		}
 		if (has_jumped) {
 			if (facing_down) {
+				fall_damage->data.f = 100000.0f;
 				has_jumped = false;
 				IncreaseElevation(a_controller, 1.5f);
 				increasing = true;
@@ -136,6 +145,7 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 				RE::hkVector4 hkv;
 				controller->GetLinearVelocityImpl(hkv);
 				auto velo = hkv.quad.m128_f32;
+				bool midair = true;
 				if (increasing) {
 					if (r_cast_out || l_cast_out) {
 						if (!(r_cast_out && l_cast_out)) {
@@ -153,6 +163,7 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 						}
 						if (!a_actor->IsInMidair()) {
 							a_actor->InterruptCast(false);
+							fall_damage->data.f = original_fall_damage;
 						}
 					} else {
 						increasing = false;
@@ -160,7 +171,9 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 				} else {
 					drag += 0.5f;
 					if (!a_actor->IsInMidair()) {
+						midair = false;
 						can_hover = false;
+						fall_damage->data.f = original_fall_damage;
 					}
 				}
 				velo[2] = (max_velocity - drag);

@@ -34,10 +34,14 @@ namespace Magyk
 		bool r_cast_out = false;
 		bool l_cast_out = false;
 
+		RE::Setting* fall_damage;
+		float original_fall_damage;
+
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
 		void SetMaxVelocity();
+		void GetFallDamage();
 		void SetDefaults();
 		void Update(RE::Actor* a_actor);
 
