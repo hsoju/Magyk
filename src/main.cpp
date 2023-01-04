@@ -40,7 +40,7 @@ namespace {
         auto& trampoline = GetTrampoline();
         trampoline.create(14);
         log::trace("Trampoline initialized.");
-		Magyk::Force::GetSingleton()->SetMaxVelocity();
+		Magyk::Force::GetSingleton()->SetConfig();
 		Magyk::Force::GetSingleton()->GetFallDamage();
 		Magyk::Caster::GetSingleton()->GetBlacklist();
 		Magyk::Caster::GetSingleton()->GetWhitelist();

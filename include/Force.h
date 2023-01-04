@@ -42,11 +42,12 @@ namespace Magyk
 
 		RE::Setting* fall_damage;
 		float original_fall_damage;
+		bool has_fall_damage = false;
 
 		const RE::BSFixedString r_cast = RE::BSFixedString("bWantCastRight");
 		const RE::BSFixedString l_cast = RE::BSFixedString("bWantCastLeft");
  
-		void SetMaxVelocity();
+		void SetConfig();
 		void GetFallDamage();
 		void SetDefaults();
 		void Update(RE::Actor* a_actor);
@@ -74,6 +75,7 @@ namespace Magyk
 		bool     CheckDirection(bool use_axis = false);
 
 		void IncreaseElevation(RE::bhkCharacterController* a_controller, float height);
+		void DampenFall(RE::bhkCharacterController* a_controller);
 
 		void CheckView();
 		void CheckJump(RE::bhkCharacterController* a_controller);

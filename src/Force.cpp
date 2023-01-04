@@ -4,11 +4,12 @@
 
 #include "Force.h"
 
-void Magyk::Force::SetMaxVelocity() {
+void Magyk::Force::SetConfig() {
 	CSimpleIniA ini;
 	ini.SetUnicode();
 	ini.LoadFile(L"Data\\SKSE\\Plugins\\Magyk.ini");
 	max_velocity_z = ini.GetDoubleValue("Global", "fMaxVelocity", 18.0f);
+	has_fall_damage = !(ini.GetBoolValue("Global", "bNoFallDamage", true));
 }
 
 void Magyk::Force::GetFallDamage() {
@@ -96,6 +97,14 @@ void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, f
 		posn[2] = orig + increment;
 		a_controller->SetPositionImpl(hkp, false, false);
 	}
+}
+
+void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
+	RE::hkVector4 hkp;
+	a_controller->GetPositionImpl(hkp, false);
+	auto posn = hkp.quad.m128_f32;
+	a_controller->fallStartHeight = posn[2];
+	a_controller->fallTime = 0.0f;
 }
 
 void Magyk::Force::CheckView() {
@@ -188,13 +197,17 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 								}
 							}
 							if (!a_actor->IsInMidair()) {
+								can_hover = false;
 								a_actor->InterruptCast(false);
 								fall_damage->data.f = original_fall_damage;
 							}
 						} else {
 							increasing = false;
-							fall_damage->data.f = original_fall_damage;
+							if (has_fall_damage) {
+								fall_damage->data.f = original_fall_damage;
+							}
 						}
+						DampenFall(controller);
 					} else {
 						if (drag < max_velocity_z) {
 							drag += 0.5f;
@@ -203,6 +216,7 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 						}
 						if (!a_actor->IsInMidair()) {
 							can_hover = false;
+							fall_damage->data.f = original_fall_damage;
 						}
 					}
 					if (use_drag) {
@@ -221,18 +235,22 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 					if (increasing) {
 						if (!has_jumped) {
 							drag += 0.125f;
-							if (!a_actor->IsInMidair() && (drag > max_velocity_xy)) {
+							if (!a_actor->IsInMidair()) {
 								can_hover = false;
 								fall_damage->data.f = original_fall_damage;
 							}
 						} else {
 							increasing = false;
+							if (has_fall_damage) {
+								fall_damage->data.f = original_fall_damage;
+							}
 						}
+						DampenFall(controller);
 					} else {
 						drag += 0.25f;
-						if (!a_actor->IsInMidair() && (drag > max_velocity_xy)) {
+						if (!a_actor->IsInMidair()) {
 							can_hover = false;
-							//fall_damage->data.f = original_fall_damage;
+							fall_damage->data.f = original_fall_damage;
 						}
 					}
 					auto cam = RE::PlayerCamera::GetSingleton();
