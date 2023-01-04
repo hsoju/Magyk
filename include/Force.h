@@ -30,7 +30,7 @@ namespace Magyk
 		uint32_t facing_cycle = 0;
 		uint32_t facing_window = 50;
 
-		float max_velocity_xy = 12.0f;
+		float max_velocity_xy = 10.0f;
 		float max_velocity_z = 18.0f;
 
 		float drag = 0.0f;
