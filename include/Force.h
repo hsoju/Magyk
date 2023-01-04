@@ -18,9 +18,11 @@ namespace Magyk
 		bool can_hover = false;
 		bool is_hovering = false;
 		bool increasing = false;
+		bool is_launched = false;
 
 		bool facing_down = false;
 		bool has_jumped = false;
+		bool is_jumping = false;
 
 		uint32_t jump_cycle = 0;
 		uint32_t jump_window = 10;
@@ -28,8 +30,12 @@ namespace Magyk
 		uint32_t facing_cycle = 0;
 		uint32_t facing_window = 50;
 
-		float max_velocity = 18.0f;
+		float max_velocity_xy = 12.0f;
+		float max_velocity_z = 18.0f;
+
 		float drag = 0.0f;
+		float x_mod = 0.0f;
+		float y_mod = 0.0f;
 
 		bool r_cast_out = false;
 		bool l_cast_out = false;
@@ -68,8 +74,10 @@ namespace Magyk
 		bool     CheckDirection(bool use_axis = false);
 
 		void IncreaseElevation(RE::bhkCharacterController* a_controller, float height);
-		void DampenFall(RE::bhkCharacterController* a_controller);
 
+		void CheckView();
+		void CheckJump(RE::bhkCharacterController* a_controller);
+		void CheckLaunch(RE::bhkCharacterController* a_controller);
 		void CheckConditions(RE::bhkCharacterController* a_controller);
 	};
 }

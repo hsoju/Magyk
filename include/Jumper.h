@@ -16,7 +16,7 @@ namespace Magyk
 				return RE::BSEventNotifyControl::kContinue;
 			}
 
-			if (!(Magyk::Force::GetSingleton()->can_hover && !Magyk::Force::GetSingleton()->is_hovering)) {
+			if (!Magyk::Force::GetSingleton()->can_hover) {
 				RE::BSEventNotifyControl::kContinue;
 			}
 
@@ -30,8 +30,24 @@ namespace Magyk
 				}
 
 				const auto button = static_cast<RE::ButtonEvent*>(event);
-				if (!button || !button->IsUp()) {
+				if (!button) {
 					continue;
+				} else {
+					if (Magyk::Force::GetSingleton()->is_launched) {
+						if (Magyk::Force::GetSingleton()->is_hovering) {
+							if (!button->IsUp()) {
+								continue;
+							}
+						} else {
+							if (!(!Magyk::Force::GetSingleton()->is_jumping && button->IsHeld())) {
+								continue;
+							}
+						}
+					} else {
+						if (Magyk::Force::GetSingleton()->is_hovering || !button->IsUp()) {
+							continue;
+						}
+					}
 				}
 
 				auto current_key = button->GetIDCode();
@@ -52,7 +68,14 @@ namespace Magyk
 				const auto jump_key = GetJumpKey(button->device.get());
 
 				if (current_key == jump_key) {
-					Magyk::Force::GetSingleton()->has_jumped = true;
+					if (button->IsUp()) {
+						Magyk::Force::GetSingleton()->is_jumping = false;
+						Magyk::Force::GetSingleton()->has_jumped = true;
+					} else {
+						if (button->IsHeld()) {
+							Magyk::Force::GetSingleton()->is_jumping = true;
+						}
+					}
 					break;
 				}
 			}
