@@ -91,8 +91,11 @@ void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, f
 	RE::hkVector4 hkp;
 	a_controller->GetPositionImpl(hkp, false);
 	auto posn = hkp.quad.m128_f32;
-	posn[2] += height;
-	a_controller->SetPositionImpl(hkp, false, false);
+	float orig = posn[2];
+	for (float increment = 0.1f; increment <= height; increment += 0.1f) {
+		posn[2] = orig + increment;
+		a_controller->SetPositionImpl(hkp, false, false);
+	}
 }
 
 void Magyk::Force::CheckView() {
