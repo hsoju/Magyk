@@ -22,7 +22,7 @@ namespace Magyk
 
 		bool facing_down = false;
 		bool has_jumped = false;
-		bool is_jumping = false;
+		float time_jumped = 0.0f;
 
 		uint32_t jump_cycle = 0;
 		uint32_t jump_window = 10;

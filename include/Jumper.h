@@ -12,12 +12,12 @@ namespace Magyk
 		}
 
 		auto ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) -> RE::BSEventNotifyControl override {
-			if (!a_event) {
-				return RE::BSEventNotifyControl::kContinue;
-			}
-
 			if (!Magyk::Force::GetSingleton()->can_hover) {
 				RE::BSEventNotifyControl::kContinue;
+			}
+
+			if (!a_event) {
+				return RE::BSEventNotifyControl::kContinue;
 			}
 
 			if (RE::UI::GetSingleton()->GameIsPaused() || !RE::ControlMap::GetSingleton()->IsMovementControlsEnabled()) {
@@ -33,20 +33,8 @@ namespace Magyk
 				if (!button) {
 					continue;
 				} else {
-					if (Magyk::Force::GetSingleton()->is_launched) {
-						if (Magyk::Force::GetSingleton()->is_hovering) {
-							if (!button->IsUp()) {
-								continue;
-							}
-						} else {
-							if (!(!Magyk::Force::GetSingleton()->is_jumping && button->IsHeld())) {
-								continue;
-							}
-						}
-					} else {
-						if (Magyk::Force::GetSingleton()->is_hovering || !button->IsUp()) {
-							continue;
-						}
+					if (Magyk::Force::GetSingleton()->is_hovering || !button->IsUp()) {
+						continue;
 					}
 				}
 
@@ -69,12 +57,8 @@ namespace Magyk
 
 				if (current_key == jump_key) {
 					if (button->IsUp()) {
-						Magyk::Force::GetSingleton()->is_jumping = false;
+						Magyk::Force::GetSingleton()->time_jumped = button->HeldDuration();
 						Magyk::Force::GetSingleton()->has_jumped = true;
-					} else {
-						if (button->IsHeld()) {
-							Magyk::Force::GetSingleton()->is_jumping = true;
-						}
 					}
 					break;
 				}

@@ -28,7 +28,7 @@ void Magyk::Force::SetDefaults() {
 	jump_cycle = 0;
 	facing_down = false;
 	has_jumped = false;
-	is_jumping = false;
+	time_jumped = 0.0f;
 	is_launched = false;
 	is_hovering = false;
 	increasing = false;
@@ -142,7 +142,7 @@ void Magyk::Force::CheckJump(RE::bhkCharacterController* a_controller) {
 }
 
 void Magyk::Force::CheckLaunch(RE::bhkCharacterController* a_controller) {
-	if (is_jumping) {
+	if (has_jumped) {
 		fall_damage->data.f = 100000.0f;
 		IncreaseElevation(a_controller, 1.5f);
 		increasing = true;
@@ -161,7 +161,7 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 			can_hover = false;
 		}
 	} else {
-		if (jump_cycle < (jump_window * 3)) {
+		if (jump_cycle < (jump_window * 2.5)) {
 			CheckLaunch(a_controller);
 		} else {
 			can_hover = false;
@@ -233,17 +233,17 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 					controller->GetLinearVelocityImpl(hkv);
 					auto velo = hkv.quad.m128_f32;
 					if (increasing) {
-						if (!has_jumped) {
-							drag += 0.125f;
+						if (has_jumped && (drag < max_velocity_xy || time_jumped > 0.0f)) {
+							if (drag < max_velocity_xy) {
+								time_jumped -= 0.005;
+							}
+							drag += 0.5f;
 							if (!a_actor->IsInMidair()) {
 								can_hover = false;
 								fall_damage->data.f = original_fall_damage;
 							}
 						} else {
 							increasing = false;
-							if (has_fall_damage) {
-								fall_damage->data.f = original_fall_damage;
-							}
 						}
 						DampenFall(controller);
 					} else {
@@ -258,8 +258,8 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 						x_mod = sin(cam->yaw) * -1.0f;
 						y_mod = cos(cam->yaw) * -1.0f;
 					}
-					velo[0] = drag * 1.5f * x_mod;
-					velo[1] = drag * 1.5f * y_mod;
+					velo[0] = drag * 1.75f * x_mod;
+					velo[1] = drag * 1.75f * y_mod;
 					velo[2] = max_velocity_xy - drag;
 					controller->SetLinearVelocityImpl(hkv);
 				} else {
