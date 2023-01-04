@@ -145,7 +145,7 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 				RE::hkVector4 hkv;
 				controller->GetLinearVelocityImpl(hkv);
 				auto velo = hkv.quad.m128_f32;
-				bool midair = true;
+				bool use_drag = true;
 				if (increasing) {
 					if (r_cast_out || l_cast_out) {
 						if (!(r_cast_out && l_cast_out)) {
@@ -167,18 +167,23 @@ void Magyk::Force::Update(RE::Actor* a_actor) {
 						}
 					} else {
 						increasing = false;
+						fall_damage->data.f = original_fall_damage;
 					}
 				} else {
 					drag += 0.5f;
+					if (drag > max_velocity) {
+						use_drag = false;
+					}
 					if (!a_actor->IsInMidair()) {
-						midair = false;
 						can_hover = false;
-						fall_damage->data.f = original_fall_damage;
+						//fall_damage->data.f = original_fall_damage;
 					}
 				}
-				velo[2] = (max_velocity - drag);
-				controller->SetLinearVelocityImpl(hkv);
-				DampenFall(controller);
+				if (use_drag) {
+					velo[2] = (max_velocity - drag);
+					controller->SetLinearVelocityImpl(hkv);
+					DampenFall(controller);
+				}
 			} else {
 				CheckConditions(controller);
 			}
