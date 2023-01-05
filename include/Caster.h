@@ -21,9 +21,9 @@ namespace Magyk
 						if (!use_blacklist || (use_blacklist && whitelist.contains(spell))) {
 							auto force = Magyk::Force::GetSingleton();
 							force->SetDefaults();
-							if (spell->GetCastingType() == RE::MagicSystem::CastingType::kFireAndForget) {
-								force->is_launched = true;
-							}
+							//if (spell->GetCastingType() == RE::MagicSystem::CastingType::kFireAndForget) {
+							//	force->is_launched = true;
+							//}
 							force->can_hover = true;
 						}
 					}

@@ -41,7 +41,7 @@ void Magyk::Caster::GetWhitelist() {
 }
 
 bool Magyk::Caster::IsValidSpell(RE::SpellItem* a_spell) {
-	if (a_spell->GetDelivery() == RE::MagicSystem::Delivery::kAimed) {
+	if (a_spell->GetDelivery() == RE::MagicSystem::Delivery::kAimed && a_spell->GetCastingType() == RE::MagicSystem::CastingType::kConcentration) {
 		return true;
 	} else {
 		return false;
