@@ -66,20 +66,16 @@ bool Magyk::Force::CheckDirection(bool use_axis) {
 		float y;
 		float z;
 		rot.ToEulerAnglesXYZ(x, y, z);
-		x = RadiansToDegrees(x);
-		y = RadiansToDegrees(y);
-		if (abs(x) > 40.0f || abs(y) > 30.0f) {
+		float dx = RadiansToDegrees(x);
+		float dy = RadiansToDegrees(y);
+		/* KEEP THIS HERE NO MATTER WHAT */
+		//float yaw = atan(rot.entry[1][0] / rot.entry[0][0]);
+		//float pitch = atan(-rot.entry[2][0] / (sqrt(pow(rot.entry[2][1], 2) + pow(rot.entry[2][2], 2))));
+		float roll = atan(rot.entry[2][1] / rot.entry[2][2]);
+		//logger::info("{}", roll);
+		if (abs(dx) > 40.0f || abs(dy) > 30.0f) {
 			if (use_axis) {
-				uint32_t axis = RadianRange(RadiansToDegrees(cam->yaw));
-				if ((x + y) > 0.0f) {
-					if (axis == 0 || axis == 3) {
-						return true;
-					}
-				} else {
-					if (axis == 1 || axis == 2) {
-						return true;
-					}
-				}
+				return roll < 0.0f;
 			} else {
 				return true;
 			}
@@ -93,9 +89,9 @@ void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, f
 	a_controller->GetPositionImpl(hkp, false);
 	auto posn = hkp.quad.m128_f32;
 	float orig = posn[2];
-	for (float increment = 0.1f; increment <= height; increment += 0.1f) {
+	for (float increment = 0.1; increment <= height; increment += 0.1) {
 		posn[2] = orig + increment;
-		a_controller->SetPositionImpl(hkp, false, false);
+		a_controller->SetPositionImpl(hkp, false, true);
 	}
 }
 
