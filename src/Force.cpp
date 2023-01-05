@@ -105,14 +105,14 @@ void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
 
 void Magyk::Force::CheckView() {
 	if (!facing_down) {
-		if (CheckDirection()) {
+		if (CheckDirection(true)) {
 			facing_down = true;
 		}
 	} else {
 		facing_cycle += 1;
 		if (facing_cycle >= facing_window) {
 			facing_cycle = 0;
-			if (!CheckDirection()) {
+			if (!CheckDirection(true)) {
 				facing_down = false;
 			}
 		}
