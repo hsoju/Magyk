@@ -80,6 +80,7 @@ namespace Magyk
 		enum : uint32_t
 		{
 			kKeyboardOffset = 0,
+			kVROffset = 0,
 			kMouseOffset = 256,
 			kGamepadOffset = 266,
 			kInvalid = static_cast<uint32_t>(-1)

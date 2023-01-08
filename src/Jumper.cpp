@@ -84,6 +84,12 @@ uint32_t Magyk::Jumper::GetJumpKey(RE::INPUT_DEVICE a_device)
 	case RE::INPUT_DEVICE::kGamepad:
 		key = GetGamepadIndex((RE::BSWin32GamepadDevice::Key)key);
 		break;
+	case RE::INPUT_DEVICE::kVRLeft:
+		key += kVROffset;
+		break;
+	case RE::INPUT_DEVICE::kVRRight:
+		key += kVROffset;
+		break;
 	default:
 		key = 255;
 		break;

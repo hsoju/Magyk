@@ -166,101 +166,99 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 }
 
 void Magyk::Force::Update(RE::Actor* a_actor) {
-	if (a_actor->Is3DLoaded()) {
-		if (can_hover) {
-			if (!is_launched) {
-				a_actor->GetGraphVariableBool(r_cast, r_cast_out);
-				a_actor->GetGraphVariableBool(l_cast, l_cast_out);
-				auto controller = a_actor->GetCharController();
-				if (is_hovering) {
-					RE::hkVector4 hkv;
-					controller->GetLinearVelocityImpl(hkv);
-					auto velo = hkv.quad.m128_f32;
-					bool use_drag = true;
-					if (increasing) {
-						if (r_cast_out || l_cast_out) {
-							if (!(r_cast_out && l_cast_out)) {
-								if (drag > max_velocity_z) {
-									drag += 0.075f;
-								} else {
-									drag += 0.25f;
-								}
+	if (can_hover && a_actor->Is3DLoaded()) {
+		if (!is_launched) {
+			a_actor->GetGraphVariableBool(r_cast, r_cast_out);
+			a_actor->GetGraphVariableBool(l_cast, l_cast_out);
+			auto controller = a_actor->GetCharController();
+			if (is_hovering) {
+				RE::hkVector4 hkv;
+				controller->GetLinearVelocityImpl(hkv);
+				auto velo = hkv.quad.m128_f32;
+				bool use_drag = true;
+				if (increasing) {
+					if (r_cast_out || l_cast_out) {
+						if (!(r_cast_out && l_cast_out)) {
+							if (drag > max_velocity_z) {
+								drag += 0.075f;
 							} else {
-								if (drag > max_velocity_z) {
-									drag += 0.05f;
-								} else {
-									drag += 0.125f;
-								}
-							}
-							if (!a_actor->IsInMidair()) {
-								can_hover = false;
-								a_actor->InterruptCast(false);
-								fall_damage->data.f = original_fall_damage;
+								drag += 0.25f;
 							}
 						} else {
-							increasing = false;
-							if (has_fall_damage) {
-								fall_damage->data.f = original_fall_damage;
+							if (drag > max_velocity_z) {
+								drag += 0.05f;
+							} else {
+								drag += 0.125f;
 							}
-						}
-						DampenFall(controller);
-					} else {
-						if (drag < max_velocity_z) {
-							drag += 0.5f;
-						} else {
-							use_drag = false;
 						}
 						if (!a_actor->IsInMidair()) {
 							can_hover = false;
+							a_actor->InterruptCast(false);
+							fall_damage->data.f = original_fall_damage;
+						}
+					} else {
+						increasing = false;
+						if (has_fall_damage) {
 							fall_damage->data.f = original_fall_damage;
 						}
 					}
-					if (use_drag) {
-						velo[2] = max_velocity_z - drag;
-						controller->SetLinearVelocityImpl(hkv);
-					}
+					DampenFall(controller);
 				} else {
-					CheckConditions(controller);
+					if (drag < max_velocity_z) {
+						drag += 0.5f;
+					} else {
+						use_drag = false;
+					}
+					if (!a_actor->IsInMidair()) {
+						can_hover = false;
+						fall_damage->data.f = original_fall_damage;
+					}
+				}
+				if (use_drag) {
+					velo[2] = max_velocity_z - drag;
+					controller->SetLinearVelocityImpl(hkv);
 				}
 			} else {
-				auto controller = a_actor->GetCharController();
-				if (is_hovering) {
-					RE::hkVector4 hkv;
-					controller->GetLinearVelocityImpl(hkv);
-					auto velo = hkv.quad.m128_f32;
-					if (increasing) {
-						if (has_jumped && (drag < max_velocity_xy || time_jumped > 0.0f)) {
-							if (drag < max_velocity_xy) {
-								time_jumped -= 0.005;
-							}
-							drag += 0.5f;
-							if (!a_actor->IsInMidair()) {
-								can_hover = false;
-								fall_damage->data.f = original_fall_damage;
-							}
-						} else {
-							increasing = false;
+				CheckConditions(controller);
+			}
+		} else {
+			auto controller = a_actor->GetCharController();
+			if (is_hovering) {
+				RE::hkVector4 hkv;
+				controller->GetLinearVelocityImpl(hkv);
+				auto velo = hkv.quad.m128_f32;
+				if (increasing) {
+					if (has_jumped && (drag < max_velocity_xy || time_jumped > 0.0f)) {
+						if (drag < max_velocity_xy) {
+							time_jumped -= 0.005;
 						}
-						DampenFall(controller);
-					} else {
-						drag += 0.25f;
+						drag += 0.5f;
 						if (!a_actor->IsInMidair()) {
 							can_hover = false;
 							fall_damage->data.f = original_fall_damage;
 						}
+					} else {
+						increasing = false;
 					}
-					auto cam = RE::PlayerCamera::GetSingleton();
-					if (cam) {
-						x_mod = sin(cam->yaw) * -1.0f;
-						y_mod = cos(cam->yaw) * -1.0f;
-					}
-					velo[0] = drag * 1.75f * x_mod;
-					velo[1] = drag * 1.75f * y_mod;
-					velo[2] = max_velocity_xy - drag;
-					controller->SetLinearVelocityImpl(hkv);
+					DampenFall(controller);
 				} else {
-					CheckConditions(controller);
+					drag += 0.25f;
+					if (!a_actor->IsInMidair()) {
+						can_hover = false;
+						fall_damage->data.f = original_fall_damage;
+					}
 				}
+				auto cam = RE::PlayerCamera::GetSingleton();
+				if (cam) {
+					x_mod = sin(cam->yaw) * -1.0f;
+					y_mod = cos(cam->yaw) * -1.0f;
+				}
+				velo[0] = drag * 1.75f * x_mod;
+				velo[1] = drag * 1.75f * y_mod;
+				velo[2] = max_velocity_xy - drag;
+				controller->SetLinearVelocityImpl(hkv);
+			} else {
+				CheckConditions(controller);
 			}
 		}
 	}
