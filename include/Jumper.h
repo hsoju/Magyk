@@ -49,6 +49,12 @@ namespace Magyk
 				case RE::INPUT_DEVICE::kGamepad:
 					current_key = GetGamepadIndex((RE::BSWin32GamepadDevice::Key)current_key);
 					break;
+				case RE::INPUT_DEVICE::kVRLeft:
+					current_key += kVROffset;
+					break;
+				case RE::INPUT_DEVICE::kVRRight:
+					current_key += kVROffset;
+					break;
 				default:
 					continue;
 				}
