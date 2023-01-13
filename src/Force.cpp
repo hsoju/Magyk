@@ -73,15 +73,25 @@ bool Magyk::Force::CheckDirection(bool use_axis) {
 		//float pitch = atan(-rot.entry[2][0] / (sqrt(pow(rot.entry[2][1], 2) + pow(rot.entry[2][2], 2))));
 		float roll = atan(rot.entry[2][1] / rot.entry[2][2]);
 		//logger::info("{}", roll);
+		logger::info("Abs x: {}, Abs y: {}", abs(x), abs(y));
 		if (abs(dx) > 40.0f || abs(dy) > 30.0f) {
+			logger::info("Abs check succeeded");
 			if (use_axis) {
-				return roll < 0.0f;
+				if (roll < 0.0f) {
+					logger::info("Axis check succeeded");
+					return true;
+				} else {
+					return false;
+				}
+				//return roll < 0.0f;
 			} else {
 				return true;
 			}
 		}
+	} else {
+		logger::info("No cam found");
 	}
-	return false;
+	return true;
 }
 
 void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, float height) {

@@ -25,21 +25,44 @@ namespace Magyk
 			}
 
 			for (auto event = *a_event; event; event = event->next) {
-				if (event->eventType != RE::INPUT_EVENT_TYPE::kButton) {
+				if (event->eventType != RE::INPUT_EVENT_TYPE::kButton && event->eventType != RE::INPUT_EVENT_TYPE::kThumbstick) {
 					continue;
 				}
 
-				const auto button = static_cast<RE::ButtonEvent*>(event);
-				if (!button) {
-					continue;
-				} else {
-					if (Magyk::Force::GetSingleton()->is_hovering || !button->IsUp()) {
+				uint32_t current_key;
+				RE::INPUT_DEVICE device;
+
+				if (event->eventType == RE::INPUT_EVENT_TYPE::kButton) {
+					const auto button = static_cast<RE::ButtonEvent*>(event);
+					if (!button) {
 						continue;
+					} else {
+						if (Magyk::Force::GetSingleton()->is_hovering || !button->IsUp()) {
+							continue;
+						} else {
+							current_key = button->GetIDCode();
+							device = button->device.get();
+						}
+					}
+				} else {
+					if (event->eventType == RE::INPUT_EVENT_TYPE::kThumbstick) {
+						const auto thumb = static_cast<RE::ThumbstickEvent*>(event);
+						if (!thumb) {
+							continue;
+						} else {
+							if (Magyk::Force::GetSingleton()->is_hovering) {
+								continue;
+							} else {
+								current_key = thumb->GetIDCode();
+								device = thumb->device.get();
+							}
+						}
 					}
 				}
 
-				auto current_key = button->GetIDCode();
-				switch (button->device.get()) {
+				logger::info("Current: {}", current_key);
+				
+				switch (device) {
 				case RE::INPUT_DEVICE::kMouse:
 					current_key += kMouseOffset;
 					break;
@@ -59,13 +82,13 @@ namespace Magyk
 					continue;
 				}
 
-				const auto jump_key = GetJumpKey(button->device.get());
+				const auto jump_key = GetJumpKey(device);
 
 				if (current_key == jump_key) {
-					if (button->IsUp()) {
-						Magyk::Force::GetSingleton()->time_jumped = button->HeldDuration();
-						Magyk::Force::GetSingleton()->has_jumped = true;
-					}
+					//if (button->IsUp()) {
+					//Magyk::Force::GetSingleton()->time_jumped = button->HeldDuration();
+					Magyk::Force::GetSingleton()->has_jumped = true;
+					//}
 					break;
 				}
 			}

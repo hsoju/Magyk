@@ -73,6 +73,8 @@ uint32_t Magyk::Jumper::GetGamepadIndex(RE::BSWin32GamepadDevice::Key a_key)
 uint32_t Magyk::Jumper::GetJumpKey(RE::INPUT_DEVICE a_device)
 {
 	auto key = RE::ControlMap::GetSingleton()->GetMappedKey(RE::UserEvents::GetSingleton()->jump, a_device);
+
+	logger::info("Jump: {}", key);
 	
 	switch (a_device) {
 	case RE::INPUT_DEVICE::kMouse:
