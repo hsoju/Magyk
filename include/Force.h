@@ -50,6 +50,7 @@ namespace Magyk
 		void SetConfig();
 		void GetFallDamage();
 		void SetDefaults();
+		void UpdateHover(RE::Actor* a_actor);
 		void Update(RE::Actor* a_actor);
 
 	protected:
@@ -57,8 +58,8 @@ namespace Magyk
 		{
 			struct PlayerCharacter_Update
 			{
-				static void thunk(RE::PlayerCharacter* a_player) {
-					func(a_player);
+				static void thunk(RE::PlayerCharacter* a_player, float a_delta) {
+					func(a_player, a_delta);
 					GetSingleton()->Update(a_player);
 				}
 				static inline REL::Relocation<decltype(thunk)> func;
