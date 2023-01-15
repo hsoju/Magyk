@@ -26,7 +26,6 @@ namespace Magyk
 							//}
 							force->can_hover = true;
 							logger::info("Hover started");
-							//force->UpdateHover(RE::PlayerCharacter::GetSingleton()->As<RE::Actor>());
 						}
 					}
 				}

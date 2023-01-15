@@ -13,7 +13,7 @@ namespace Magyk
 
 		auto ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) -> RE::BSEventNotifyControl override {
 			if (!Magyk::Force::GetSingleton()->can_hover || Magyk::Force::GetSingleton()->has_jumped) {
-				RE::BSEventNotifyControl::kContinue;
+				return RE::BSEventNotifyControl::kContinue;
 			}
 
 			if (!a_event) {
@@ -29,9 +29,8 @@ namespace Magyk
 					continue;
 				}
 
-				uint32_t current_key = 900;
-				uint32_t key_posn = -1;
-				//float    current_value;
+				uint32_t current_key = 9000;
+				uint32_t key_posn = 0;
 				
 				RE::INPUT_DEVICE     device = event->GetDevice();
 				RE::INPUT_EVENT_TYPE input_type = event->GetEventType();
@@ -43,23 +42,14 @@ namespace Magyk
 					} else {
 						current_key = button->GetIDCode();
 						if (button->IsUp()) {
-							key_posn = 0;
+							key_posn = 1;
 						} else {
-							if (button->IsHeld()) {
-								key_posn = 1;
-							} else {
-								if (button->IsPressed()) {
-									key_posn = 2;
-								} else {
-									if (button->IsDown()) {
-										key_posn = 3;
-									} else {
-										if (button->IsRepeating()) {
-											key_posn = 4;
-										}
-									}
-								}
-							}
+							continue;
+							//if (button->IsPressed()) {
+							//	key_posn = 2;
+							//} else {
+							//	continue;
+							//}
 						}
 					}
 				} else {
@@ -89,7 +79,7 @@ namespace Magyk
 				const auto jump_key = GetJumpKey(device);
 
 				if (current_key == jump_key) {
-					logger::info("Keys matched, Key state = {}", key_posn);
+					//logger::info("Keys matched, Key state = {}", key_posn);
 					Magyk::Force::GetSingleton()->has_jumped = true;
 					break;
 				}

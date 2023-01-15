@@ -58,12 +58,7 @@ uint32_t Magyk::Force::RadianRange(float a_degree) {
 	}
 }
 
-float Magyk::Force::RadiansToDegrees(float a_radian) {
-	return a_radian * 180.0f / std::numbers::pi;
-}
-
 bool Magyk::Force::CheckDirection(bool use_axis) {
-	logger::info("Camera direction check");
 	auto cam = RE::PlayerCamera::GetSingleton();
 	if (cam) {
 		auto rot = cam->cameraRoot->local.rotate;
@@ -71,36 +66,30 @@ bool Magyk::Force::CheckDirection(bool use_axis) {
 		float y;
 		float z;
 		rot.ToEulerAnglesXYZ(x, y, z);
-		float dx = RadiansToDegrees(x);
-		float dy = RadiansToDegrees(y);
+		float dx = RE::rad_to_deg(x);
+		float dy = RE::rad_to_deg(y);
 		/* KEEP THIS HERE NO MATTER WHAT */
 		//float yaw = atan(rot.entry[1][0] / rot.entry[0][0]);
 		//float pitch = atan(-rot.entry[2][0] / (sqrt(pow(rot.entry[2][1], 2) + pow(rot.entry[2][2], 2))));
 		float roll = atan(rot.entry[2][1] / rot.entry[2][2]);
 		if (abs(dx) > 40.0f || abs(dy) > 30.0f) {
 			if (use_axis) {
-				logger::info("Correct camera axis");
 				return roll < 0.0f;
 			} else {
 				return true;
 			}
-		} else {
-			logger::info("Invalid camera-x: {}, Invalid camera-y: {}", abs(dx), abs(dy));
 		}
-	} else {
-		logger::info("No camera found");
 	}
-	return true;
+	return false;
 }
 
 void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, float height) {
-	logger::info("Has elevated");
 	RE::hkVector4 hkp;
 	a_controller->GetPositionImpl(hkp, false);
-	auto posn = hkp.quad.m128_f32;
-	float orig = posn[2];
+	auto currentPosition = hkp.quad.m128_f32;
+	float originalZ = currentPosition[2];
 	for (float increment = 0.1; increment <= height; increment += 0.1) {
-		posn[2] = orig + increment;
+		currentPosition[2] = originalZ + increment;
 		a_controller->SetPositionImpl(hkp, false, true);
 	}
 }
@@ -108,8 +97,8 @@ void Magyk::Force::IncreaseElevation(RE::bhkCharacterController* a_controller, f
 void Magyk::Force::DampenFall(RE::bhkCharacterController* a_controller) {
 	RE::hkVector4 hkp;
 	a_controller->GetPositionImpl(hkp, false);
-	auto posn = hkp.quad.m128_f32;
-	a_controller->fallStartHeight = posn[2];
+	auto currentPosition = hkp.quad.m128_f32;
+	a_controller->fallStartHeight = currentPosition[2];
 	a_controller->fallTime = 0.0f;
 }
 
@@ -132,7 +121,6 @@ void Magyk::Force::CheckView() {
 void Magyk::Force::CheckJump(RE::bhkCharacterController* a_controller) {
 	if (has_jumped) {
 		if (facing_down) {
-			logger::info("Levitation started");
 			fall_damage->data.f = 100000.0f;
 			has_jumped = false;
 			IncreaseElevation(a_controller, 1.5f);
@@ -141,7 +129,6 @@ void Magyk::Force::CheckJump(RE::bhkCharacterController* a_controller) {
 		} else {
 			jump_cycle += 1;
 			if (jump_cycle >= jump_window) {
-				logger::info("Overshot jump window");
 				jump_cycle = 0;
 				has_jumped = false;
 			}
@@ -161,17 +148,16 @@ void Magyk::Force::CheckLaunch(RE::bhkCharacterController* a_controller) {
 }
 
 void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
-	if (!is_launched) {
-		if (r_cast_out || l_cast_out) {
-			CheckView();
-			CheckJump(a_controller);
+	if (is_launched) {
+		if (jump_cycle < (jump_window * 2.5)) {
+			CheckLaunch(a_controller);
 		} else {
-			logger::info("Hover ended");
 			can_hover = false;
 		}
 	} else {
-		if (jump_cycle < (jump_window * 2.5)) {
-			CheckLaunch(a_controller);
+		if (r_cast_out || l_cast_out) {
+			CheckView();
+			CheckJump(a_controller);
 		} else {
 			can_hover = false;
 		}
@@ -179,106 +165,108 @@ void Magyk::Force::CheckConditions(RE::bhkCharacterController* a_controller) {
 }
 
 void Magyk::Force::UpdateHover(RE::Actor* a_actor) {
-	logger::info("Hover update");
-	if (!is_launched) {
-		a_actor->GetGraphVariableBool(r_cast, r_cast_out);
-		a_actor->GetGraphVariableBool(l_cast, l_cast_out);
-		auto controller = a_actor->GetCharController();
-		if (is_hovering) {
-			RE::hkVector4 hkv;
-			controller->GetLinearVelocityImpl(hkv);
-			auto velo = hkv.quad.m128_f32;
-			bool use_drag = true;
-			if (increasing) {
-				if (r_cast_out || l_cast_out) {
-					if (!(r_cast_out && l_cast_out)) {
-						if (drag > max_velocity_z) {
-							drag += 0.075f;
-						} else {
-							drag += 0.25f;
-						}
+	a_actor->GetGraphVariableBool(r_cast, r_cast_out);
+	a_actor->GetGraphVariableBool(l_cast, l_cast_out);
+	auto controller = a_actor->GetCharController();
+	if (is_hovering) {
+		RE::hkVector4 hkv;
+		controller->GetLinearVelocityImpl(hkv);
+		auto velo = hkv.quad.m128_f32;
+		bool use_drag = true;
+		if (increasing) {
+			if (r_cast_out || l_cast_out) {
+				if (!(r_cast_out && l_cast_out)) {
+					if (drag > max_velocity_z) {
+						drag += 0.075f;
 					} else {
-						if (drag > max_velocity_z) {
-							drag += 0.05f;
-						} else {
-							drag += 0.125f;
-						}
-					}
-					if (!a_actor->IsInMidair()) {
-						can_hover = false;
-						a_actor->InterruptCast(false);
-						fall_damage->data.f = original_fall_damage;
+						drag += 0.25f;
 					}
 				} else {
-					increasing = false;
-					if (has_fall_damage) {
-						fall_damage->data.f = original_fall_damage;
+					if (drag > max_velocity_z) {
+						drag += 0.05f;
+					} else {
+						drag += 0.125f;
 					}
-				}
-				DampenFall(controller);
-			} else {
-				if (drag < max_velocity_z) {
-					drag += 0.5f;
-				} else {
-					use_drag = false;
 				}
 				if (!a_actor->IsInMidair()) {
 					can_hover = false;
+					a_actor->InterruptCast(false);
+					fall_damage->data.f = original_fall_damage;
+				}
+			} else {
+				increasing = false;
+				if (has_fall_damage) {
 					fall_damage->data.f = original_fall_damage;
 				}
 			}
-			if (use_drag) {
-				velo[2] = max_velocity_z - drag;
-				controller->SetLinearVelocityImpl(hkv);
-			}
+			DampenFall(controller);
 		} else {
-			CheckConditions(controller);
+			if (drag < max_velocity_z) {
+				drag += 0.5f;
+			} else {
+				use_drag = false;
+			}
+			if (!a_actor->IsInMidair()) {
+				can_hover = false;
+				fall_damage->data.f = original_fall_damage;
+			}
+		}
+		if (use_drag) {
+			velo[2] = max_velocity_z - drag;
+			controller->SetLinearVelocityImpl(hkv);
 		}
 	} else {
-		auto controller = a_actor->GetCharController();
-		if (is_hovering) {
-			RE::hkVector4 hkv;
-			controller->GetLinearVelocityImpl(hkv);
-			auto velo = hkv.quad.m128_f32;
-			if (increasing) {
-				if (has_jumped && (drag < max_velocity_xy || time_jumped > 0.0f)) {
-					if (drag < max_velocity_xy) {
-						time_jumped -= 0.005;
-					}
-					drag += 0.5f;
-					if (!a_actor->IsInMidair()) {
-						can_hover = false;
-						fall_damage->data.f = original_fall_damage;
-					}
-				} else {
-					increasing = false;
+		CheckConditions(controller);
+	}
+}
+
+void Magyk::Force::UpdateLaunch(RE::Actor* a_actor) {
+	auto controller = a_actor->GetCharController();
+	if (is_hovering) {
+		RE::hkVector4 hkv;
+		controller->GetLinearVelocityImpl(hkv);
+		auto currentVelocity = hkv.quad.m128_f32;
+		if (increasing) {
+			if (has_jumped && (drag < max_velocity_xy || time_jumped > 0.0f)) {
+				if (drag < max_velocity_xy) {
+					time_jumped -= 0.005;
 				}
-				DampenFall(controller);
-			} else {
-				drag += 0.25f;
+				drag += 0.5f;
 				if (!a_actor->IsInMidair()) {
 					can_hover = false;
 					fall_damage->data.f = original_fall_damage;
 				}
+			} else {
+				increasing = false;
 			}
-			auto cam = RE::PlayerCamera::GetSingleton();
-			if (cam) {
-				x_mod = sin(cam->yaw) * -1.0f;
-				y_mod = cos(cam->yaw) * -1.0f;
-			}
-			velo[0] = drag * 1.75f * x_mod;
-			velo[1] = drag * 1.75f * y_mod;
-			velo[2] = max_velocity_xy - drag;
-			controller->SetLinearVelocityImpl(hkv);
+			DampenFall(controller);
 		} else {
-			CheckConditions(controller);
+			drag += 0.25f;
+			if (!a_actor->IsInMidair()) {
+				can_hover = false;
+				fall_damage->data.f = original_fall_damage;
+			}
 		}
+		auto cam = RE::PlayerCamera::GetSingleton();
+		if (cam) {
+			x_mod = sin(cam->yaw) * -1.0f;
+			y_mod = cos(cam->yaw) * -1.0f;
+		}
+		currentVelocity[0] = drag * 1.75f * x_mod;
+		currentVelocity[1] = drag * 1.75f * y_mod;
+		currentVelocity[2] = max_velocity_xy - drag;
+		controller->SetLinearVelocityImpl(hkv);
+	} else {
+		CheckConditions(controller);
 	}
-
 }
 
 void Magyk::Force::Update(RE::Actor* a_actor) {
 	if (can_hover) {
-		UpdateHover(a_actor);
+		if (is_launched) {
+			UpdateLaunch(a_actor);
+		} else {
+			UpdateHover(a_actor);
+		}
 	}
 }

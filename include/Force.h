@@ -50,7 +50,6 @@ namespace Magyk
 		void SetConfig();
 		void GetFallDamage();
 		void SetDefaults();
-		void UpdateHover(RE::Actor* a_actor);
 		void Update(RE::Actor* a_actor);
 
 	protected:
@@ -72,7 +71,6 @@ namespace Magyk
 
 	private:
 		uint32_t RadianRange(float a_radian);
-		float    RadiansToDegrees(float a_radian);
 		bool     CheckDirection(bool use_axis = false);
 
 		void IncreaseElevation(RE::bhkCharacterController* a_controller, float height);
@@ -82,5 +80,8 @@ namespace Magyk
 		void CheckJump(RE::bhkCharacterController* a_controller);
 		void CheckLaunch(RE::bhkCharacterController* a_controller);
 		void CheckConditions(RE::bhkCharacterController* a_controller);
+
+		void UpdateHover(RE::Actor* a_actor);
+		void UpdateLaunch(RE::Actor* a_actor);
 	};
 }
