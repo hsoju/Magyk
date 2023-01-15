@@ -44,12 +44,12 @@ namespace Magyk
 						if (button->IsUp()) {
 							key_posn = 1;
 						} else {
-							continue;
-							//if (button->IsPressed()) {
-							//	key_posn = 2;
-							//} else {
-							//	continue;
-							//}
+							//continue;
+							if (button->IsPressed()) {
+								key_posn = 2;
+							} else {
+								continue;
+							}
 						}
 					}
 				} else {
