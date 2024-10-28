@@ -249,8 +249,9 @@ void Magyk::Force::UpdateLaunch(RE::Actor* a_actor) {
 		}
 		auto cam = RE::PlayerCamera::GetSingleton();
 		if (cam) {
-			x_mod = sin(cam->yaw) * -1.0f;
-			y_mod = cos(cam->yaw) * -1.0f;
+			auto& cam_data = cam->GetRuntimeData2();
+			x_mod = sin(cam_data.yaw) * -1.0f;
+			y_mod = cos(cam_data.yaw) * -1.0f;
 		}
 		currentVelocity[0] = drag * 1.75f * x_mod;
 		currentVelocity[1] = drag * 1.75f * y_mod;

@@ -5,7 +5,7 @@ namespace Magyk
 	class Force	{
 
 	public:
-		static void InstallHooks()
+		static void Register()
 		{
 			Hooks::Install();
 		}

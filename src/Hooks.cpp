@@ -3,9 +3,13 @@
 #include "Caster.h"
 #include "Jumper.h"
 
-void Hooks::Install() {
-	Magyk::Force::InstallHooks();
+void Hooks::InstallCaster() {
 	Magyk::Caster::GetSingleton()->AddSpellCastSink();
+	logger::info("Installed caster hook.");
+}
+
+void Hooks::InstallInputs() {
 	Magyk::Jumper::GetSingleton()->AddJumpSink();
-	logger::info("Installed all hooks.");
+	Magyk::Force::Register();
+	logger::info("Installed input hook.");
 }

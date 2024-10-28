@@ -11,7 +11,12 @@ namespace Magyk
 			return &singleton;
 		}
 
-		auto ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>* a_eventSource) -> RE::BSEventNotifyControl override {
+		void CheckConditions() {
+
+		}
+
+		virtual RE::BSEventNotifyControl ProcessEvent(RE::InputEvent* const* a_event, RE::BSTEventSource<RE::InputEvent*>*)
+		{
 			if (!Magyk::Force::GetSingleton()->can_hover || Magyk::Force::GetSingleton()->has_jumped) {
 				return RE::BSEventNotifyControl::kContinue;
 			}
@@ -20,23 +25,43 @@ namespace Magyk
 				return RE::BSEventNotifyControl::kContinue;
 			}
 
-			if (RE::UI::GetSingleton()->GameIsPaused() || !RE::ControlMap::GetSingleton()->IsMovementControlsEnabled()) {
+			auto ui = RE::UI::GetSingleton();
+			if (!ui || ui->GameIsPaused()) {
 				return RE::BSEventNotifyControl::kContinue;
 			}
 
-			for (auto event = *a_event; event; event = event->next) {
-				if (event->eventType != RE::INPUT_EVENT_TYPE::kButton) {
+			//auto control_map = RE::ControlMap::GetSingleton();
+
+			//if ((!control_map) || !control_map->IsMovementControlsEnabled()) {
+			//	return RE::BSEventNotifyControl::kContinue;
+			//}
+
+			for (auto given_input = *a_event; given_input; given_input = given_input->next) {
+				if (given_input->eventType.get() != RE::INPUT_EVENT_TYPE::kButton) {
 					continue;
 				}
 
+
+				const RE::ButtonEvent* button = given_input->AsButtonEvent();
+				if (button->IsHeld()) {
+					continue;
+				}
+
+
+				const RE::IDEvent* given_id = given_input->AsIDEvent();
+				const auto& given_user = given_id->userEvent;
+				const auto user_events = RE::UserEvents::GetSingleton();
+
+				/*
 				uint32_t current_key = 9000;
 				uint32_t key_posn = 0;
 				
 				RE::INPUT_DEVICE     device = event->GetDevice();
 				RE::INPUT_EVENT_TYPE input_type = event->GetEventType();
 
+				
 				if (input_type == RE::INPUT_EVENT_TYPE::kButton) {
-					const auto button = static_cast<RE::ButtonEvent*>(event);
+					const auto button = event->AsButtonEvent();
 					if (!button) {
 						continue;
 					} else {
@@ -44,7 +69,6 @@ namespace Magyk
 						if (button->IsUp()) {
 							key_posn = 1;
 						} else {
-							//continue;
 							if (button->IsPressed()) {
 								key_posn = 2;
 							} else {
@@ -55,7 +79,7 @@ namespace Magyk
 				} else {
 					continue;
 				}
-
+				
 				switch (device) {
 				case RE::INPUT_DEVICE::kMouse:
 					current_key += kMouseOffset;
@@ -76,10 +100,11 @@ namespace Magyk
 					continue;
 				}
 
-				const auto jump_key = GetJumpKey(device);
+				//const auto jump_key = GetJumpKey(device);
+				const auto jump_key = 30;
 
-				if (current_key == jump_key) {
-					//logger::info("Keys matched, Key state = {}", key_posn);
+				*/
+				if (given_user == user_events->jump) {
 					Magyk::Force::GetSingleton()->has_jumped = true;
 					break;
 				}

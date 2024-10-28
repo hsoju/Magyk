@@ -12,20 +12,25 @@ namespace Magyk
 			return &singleton;
 		}
 
-		auto ProcessEvent(const RE::TESSpellCastEvent* a_event, RE::BSTEventSource<RE::TESSpellCastEvent>* a_eventSource) -> RE::BSEventNotifyControl override {
-			if (a_event && a_event->object && a_event->object->IsPlayerRef()) {
-				auto player = a_event->object->As<RE::Actor>();
-				if (!player->IsInMidair() && !Magyk::Force::GetSingleton()->can_hover) {
-					auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
-					if (spell && IsValidSpell(spell)) {
-						if (!use_blacklist || (use_blacklist && whitelist.contains(spell))) {
-							auto force = Magyk::Force::GetSingleton();
-							force->SetDefaults();
-							//if (spell->GetCastingType() == RE::MagicSystem::CastingType::kFireAndForget) {
-							//	force->is_launched = true;
-							//}
-							force->can_hover = true;
-							logger::info("Hover started");
+		virtual RE::BSEventNotifyControl ProcessEvent(const RE::TESSpellCastEvent* a_event, 
+			RE::BSTEventSource<RE::TESSpellCastEvent>*)
+		{
+			if (a_event) {
+				auto event_obj = a_event->object.get();
+				if (event_obj && event_obj->IsPlayerRef()) {
+					auto player = event_obj->As<RE::Actor>();
+					auto force = Magyk::Force::GetSingleton();
+					if (!player->IsInMidair() && !force->can_hover) {
+						auto spell = RE::TESForm::LookupByID(a_event->spell)->As<RE::SpellItem>();
+						if (spell && IsValidSpell(spell)) {
+							if (!use_blacklist || (use_blacklist && whitelist.contains(spell))) {
+								force->SetDefaults();
+								//if (spell->GetCastingType() == RE::MagicSystem::CastingType::kFireAndForget) {
+								//	force->is_launched = true;
+								//}
+								force->can_hover = true;
+								//logger::info("Hover set");
+							}
 						}
 					}
 				}
